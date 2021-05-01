@@ -5,7 +5,6 @@ data = pd.read_json("jawiki-country.json",lines = True)
 text_uk = data[data["title"] =="イギリス"]["text"].iloc[0]
 template = re.findall(r'^\{\{基礎情報 国\n(.+)^\}\}$', text_uk, flags=re.DOTALL + re.MULTILINE)
 key_val_list = re.findall(r'^\|(.+?)(?=(?=\n\|)|(?=\n$))', template[0], flags=re.DOTALL + re.MULTILINE)
-
 def create_temp_dic(key_val_list):
 	template_dic = {}
 	for key_val in key_val_list:
@@ -14,7 +13,25 @@ def create_temp_dic(key_val_list):
 		template_dic[key] = value
 	return template_dic
 
+template_dic = create_temp_dic(key_val_list)
+# 25の内容ここまで
 
-print(create_temp_dic(key_val_list))
+import requests as rq
 
+S = rq.Session()
+file_name = template_dic["国旗画像"]
 
+PARAMS = {
+    "action": "query",
+    "format": "json",
+    "prop": "info",
+    "titles": "File:" + file_name,
+	"inprop": "url"
+}
+
+R = S.get(url="https://en.wikipedia.org/w/api.php", params=PARAMS)
+DATA = R.json()
+
+PAGES = DATA["query"]["pages"]
+for key in PAGES.keys():
+	print(PAGES[key]["fullurl"])
