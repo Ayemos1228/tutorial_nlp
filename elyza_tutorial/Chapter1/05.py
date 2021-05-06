@@ -11,4 +11,4 @@ def n_gram(seq, n):
 seq = "I am an NLPer"
 list = seq.split(" ")
 ret = n_gram(list, 2)
-print(ret)
+print(ret) # 文字bi-gramも欲しいらしい
