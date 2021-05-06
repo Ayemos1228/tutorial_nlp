@@ -1,4 +1,5 @@
 import pandas as pd
+import requests as rq
 import re
 
 data = pd.read_json("jawiki-country.json",lines = True)
@@ -16,8 +17,6 @@ def create_temp_dic(key_val_list):
 template_dic = create_temp_dic(key_val_list)
 # 25の内容ここまで
 
-import requests as rq
-
 S = rq.Session()
 file_name = template_dic["国旗画像"]
 
@@ -26,7 +25,7 @@ PARAMS = {
     "format": "json",
     "prop": "info",
     "titles": "File:" + file_name,
-	"inprop": "url"
+	"inprop": "url",
 }
 
 R = S.get(url="https://en.wikipedia.org/w/api.php", params=PARAMS)
