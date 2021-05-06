@@ -1,10 +1,10 @@
 import re
-str = "Now I need a drink, alcoholic of course, after the heavy lectures involving quantum mechanics."
+sentence = "Now I need a drink, alcoholic of course, after the heavy lectures involving quantum mechanics."
 
-str = re.sub(r'[,.]', "", str)
-list = str.split(" ")
-dict = {}
-for item in list:
-	dict[item] = len(item)
+sentence = re.sub(r'[,.]', "", sentence)
+words = sentence.split()
+words_len = []
+for word in words:
+	words_len.append(len(word))
 
-print(dict)
+print(words_len)

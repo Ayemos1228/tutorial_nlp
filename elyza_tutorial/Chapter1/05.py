@@ -8,7 +8,12 @@ def n_gram(seq, n):
 		ans.append(tmp)
 	return (ans)
 
-seq = "I am an NLPer"
-list = seq.split(" ")
-ret = n_gram(list, 2)
-print(ret)
+if __name__ == "__main__":
+	seq = "I am an NLPer"
+	words = seq.split(" ")
+	word_bigram = n_gram(words, 2)
+	char_bigram = n_gram(seq, 2)
+	print("---word_bigram---")
+	print(word_bigram)
+	print("---char_bigram---")
+	print(char_bigram)
