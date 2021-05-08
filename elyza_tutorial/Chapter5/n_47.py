@@ -15,6 +15,31 @@ def chunk_contains_nominal_verb(chunk):
 				flag = 1
 	return flag
 
+def get_particles_wo_vnouns(sentence, pred_chunk):
+	"""文と動詞を含むchunkを受け取って、そのchunkにかかる助詞のリストを返す関数
+	ただし、「サ変接続名詞＋を」の形の「を」は含めない。
+
+	Args:
+		sentence : chunkのリストとしての文
+		pred_chunk : 動詞を含むchunk
+	Returns:
+		particles: 助詞のリスト（辞書順、重複なし）
+	"""
+	particles = set()
+	src_chunks = [sentence[idx] for idx in pred_chunk.srcs]
+
+	for chunk in src_chunks:
+		if len(chunk.morphs) == 2:
+				if chunk.morphs[0].pos == "名詞" and chunk.morphs[0].pos1 == "サ変接続":
+					if chunk.morphs[1].pos == "助詞" and chunk.morphs[1].base == "を":
+						continue
+		for morph in chunk.morphs:
+			if morph.pos == "助詞":
+				particles.add(morph.surface)
+
+	particles = sorted(list(particles))
+	return particles
+
 
 def get_nominal_verb(sentence, verb_chunk):
 	"""文と動詞を含むchunkを受け取って、そのchunkにかかり「サ変接続名詞+を」で構成される文節を返す関数
@@ -54,7 +79,7 @@ def extract_nominal_verbs(parsed, output_path):
 				nominal_verb = get_nominal_verb(sentence, chunk)
 				if nominal_verb != "":
 					predicate = nominal_verb + get_leftmost_verb(chunk)
-					particles = get_particles(sentence, chunk)
+					particles = get_particles_wo_vnouns(sentence, chunk)
 					arguments = get_arguments(sentence, chunk)
 					arguments.remove(nominal_verb)
 					if len(arguments) == 0:
