@@ -20,6 +20,7 @@ def load_cabocha_text(path):
 	sentence = []
 	with open(path, "r") as f:
 		for line in f:
+			# sentence = []はここが良さそう
 			if line.startswith("*"): # * から始まるところはスキップ
 				continue
 			elif line != "EOS\n": # 文中

@@ -27,6 +27,7 @@ def cabocha_text2chunks(path):
 	dst_nums = []
 	with open(path, "r") as f:
 		for line in f:
+			# sentence, chunk, dst_numはここで定義すれば最後に初期化せずに済む
 			if line.startswith("*"): # * から始まるところはスキップ
 				if len(chunk) != 0:
 					sentence.append(chunk)
@@ -66,4 +67,3 @@ if __name__ == '__main__':
 	ans = cabocha_text2chunks("./ai.ja.txt.parsed")
 	for chunk in ans[1]:
 		print([morph.surface for morph in chunk.morphs], chunk.dst, chunk.srcs)
-

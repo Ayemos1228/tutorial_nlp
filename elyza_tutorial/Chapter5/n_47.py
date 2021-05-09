@@ -57,9 +57,11 @@ def extract_nominal_verbs(parsed, output_path):
 					particles = get_particles(sentence, chunk)
 					arguments = get_arguments(sentence, chunk)
 					arguments.remove(nominal_verb)
+					# if not arguments:とか
 					if len(arguments) == 0:
 						frames.append(predicate + "\n")
 					else:
+						# particlesからもnominal_verbの助詞抜きたい感, 辞書型で持っとくとか
 						frames.append(predicate + "\t" + " ".join(particles) + " " + " ".join(arguments) +  "\n")
 
 	# 書き込み
