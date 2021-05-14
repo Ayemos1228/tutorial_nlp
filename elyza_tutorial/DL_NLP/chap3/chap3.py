@@ -1,5 +1,3 @@
-from elyza_tutorial.DL_NLP.tools import ids2sentence
-from elyza_tutorial.DL_NLP.chap3.tools_seq import calc_bleu
 import numpy as np
 import torch
 import torch.nn as nn
@@ -10,10 +8,10 @@ from torch.nn.utils.rnn import pad_packed_sequence, pack_padded_sequence
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from nltk import bleu_score
+from tools import Vocab, ids2sentence
 import sys
 sys.path.append("..")
-from tools import Vocab, ids2sentence
-from tools_seq import load_data, sentence2ids, DataLoader, EncoderDecoder, compute_loss, trim_eos
+from tools_seq import load_data, sentence2ids, DataLoader, EncoderDecoder, compute_loss, trim_eos, calc_bleu
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 torch.manual_seed(1)

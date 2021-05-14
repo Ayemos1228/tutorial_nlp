@@ -211,6 +211,34 @@ class EncoderDecoder(nn.Module):
 		return decoder_outputs
 
 
+class BeamEncoderDecoder(EncoderDecoder):
+	def __init__(self, input_size, output_size, hidden_size, beam_size=4):
+		super().__init__(self, input_size, output_size, hidden_size)
+		self.beam_size = beam_size
+
+	def forward(self, batch_X, lengths_X, max_length):
+		"""
+		Args:
+			batch_X : 入力系列
+			lengths_X : 入力系列のバッチごとの長さ
+			max_length : Decoderの最大文長
+		Returns:
+			decoder_outputs: 各ビームのDecoderの出力
+			finished_scores: 各ビームのスコア
+		"""
+		_, encoder_hidden = self.encoder(batch_X, lengths_X)
+
+		decoder_input = torch.tensor([BOS], dtype=torch.long, device=device) # batch_size=1なので
+		decoder_input = decoder_input.unsqueeze(0)
+		decoder_hidden = encoder_hidden
+
+		decoder_input = decoder_input.expand(1, beam_size)
+
+
+
+
+
+
 def masked_cross_entropy(logits, target):
 	"""
 	Args:

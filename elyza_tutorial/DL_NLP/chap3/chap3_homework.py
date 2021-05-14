@@ -1,3 +1,4 @@
+import csv
 import numpy as np
 import torch
 import torch.nn as nn
@@ -11,7 +12,7 @@ from nltk import bleu_score
 import sys
 sys.path.append("..")
 from tools import Vocab, ids2sentence
-from tools_seq import load_data, sentence2ids, DataLoader, EncoderDecoder, compute_loss, trim_eos
+from tools_seq import load_data, sentence2ids, DataLoader, EncoderDecoder, compute_loss, trim_eos, calc_bleu
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 torch.manual_seed(1)
@@ -65,3 +66,64 @@ valid_dataloader = DataLoader(valid_X, valid_Y, batch_size, shuffle=False)
 test_dataloader = DataLoader(test_X, test_Y, batch_size, shuffle=False)
 
 
+model = EncoderDecoder(vocab_size_X, vocab_size_Y, hidden_size)
+optimizer = optim.Adam(model.parameters(), lr=lr)
+
+best_valid_bleu = 0.
+for epoch in range(1, num_epochs + 1):
+	train_loss = 0.
+	train_refs = []
+	train_hyps = []
+	valid_loss = 0.
+	valid_refs = []
+	valid_hyps = []
+	for batch in train_dataloader:
+		batch_X, batch_Y, lengths_X = batch
+		loss, gold, pred = compute_loss(batch_X, batch_Y, lengths_X, model, optimizer, is_train=True, teacher_forcing_rate=teacher_forcing_rate)
+		train_loss += loss
+		train_refs += gold
+		train_hyps += pred
+
+	for batch in valid_dataloader:
+		batch_X, batch_Y, lengths_X = batch
+		loss, gold, pred = compute_loss(batch_X, batch_Y, lengths_X, model, optimizer, is_train=False)
+		valid_loss += loss
+		valid_refs += gold
+		valid_hyps += pred
+
+	train_loss /= len(train_dataloader.data)
+	valid_loss /= len(valid_dataloader.data)
+
+	train_bleu = calc_bleu(train_refs, train_hyps)
+	valid_bleu = calc_bleu(valid_refs, valid_hyps)
+
+	if valid_bleu > best_valid_bleu:
+		ckpt = model.state_dict()
+		best_valid_bleu = valid_bleu
+
+	print('Epoch {}: train_loss: {:5.2f}  train_bleu: {:2.2f}  valid_loss: {:5.2f}  valid_bleu: {:2.2f}'.format(
+			epoch, train_loss, train_bleu, valid_loss, valid_bleu))
+	print('-'*80)
+
+
+model.load_state_dict(ckpt)
+model.eval()
+
+test_loss = 0.
+test_refs = []
+test_hyps = []
+for batch in test_dataloader:
+	batch_X, batch_Y, lengths_X = batch
+	loss, gold, pred = compute_loss(batch_X, batch_Y, lengths_X, model, is_train=False)
+	test_loss += loss
+	test_refs += gold
+	test_hyps += pred
+
+test_loss /= len(test_dataloader.data)
+test_bleu = calc_bleu(test_refs, test_hyps)
+
+print("Test loss: {:5.2f} test_bleu: {:2.2f}".format(test_loss, test_bleu))
+
+with open('submission.csv', 'w') as f:
+    writer = csv.writer(f, delimiter=' ', lineterminator='\n')
+    writer.writerows(test_hyps)
