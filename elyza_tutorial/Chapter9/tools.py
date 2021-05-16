@@ -45,6 +45,22 @@ def load_data(file_path):
 
 	return titles, labels
 
+def load_sent(file_path):
+	titles = []
+	labels = []
+	with open(file_path, "r") as f:
+		for line in f:
+			if "TITLE" in line:
+				continue
+			line_split = line.strip().split("\t")
+			sent = line_split[0].lower()
+			sent = re.sub(r'\d+', '0', sent)
+			sent = re.sub(r'[^ \w]', '', sent)
+			titles.append(sent)
+			labels.append(line_split[1])
+
+	return titles, labels
+
 
 class Vocab:
 	def __init__(self, word2id={}):
